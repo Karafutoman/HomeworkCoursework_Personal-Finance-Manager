@@ -112,4 +112,16 @@ public class Tracker {
                 "}";
 
     }
+    public void saveBin() throws Exception {
+        try (FileWriter fileWriter = new FileWriter("data.bin")) {
+            Gson gson = new Gson();
+            gson.toJson(this, fileWriter);
+        }
+    }
+    public static Tracker loadFromBinFile() throws Exception {
+        try (FileReader fileReader = new FileReader("data.bin")) {
+            Gson gson = new Gson();
+            return gson.fromJson(fileReader, Tracker.class);
+        }
+    }
 }
