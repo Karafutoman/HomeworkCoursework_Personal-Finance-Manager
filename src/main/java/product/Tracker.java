@@ -24,20 +24,20 @@ public class Tracker {
             "мыло\tбыт\n" +
             "акции\tфинансы";
 
-    public Tracker() {
+    public Tracker(){
         loadCategories();
     }
 
-    private void loadCategories() {
+    private void loadCategories(){
         try {
             File file = new File("categories.tsv");
 
-            if (file.exists() == false) {
+            if(file.exists() == false){
                 file.createNewFile();
 
                 Files.writeString(Path.of(file.getPath()), template);
                 System.out.println("Создан файл с категориями, загрузка данных");
-            } else {
+            } else{
                 System.out.println("Файл с категориями найден, загрузка данных");
             }
 
@@ -47,9 +47,9 @@ public class Tracker {
 
                 String[] splitedData = data.split("\t");
 
-                if (splitedData.length == 2) {
+                if(splitedData.length == 2){
                     Category currentCategory;
-                    if (trackedProducts.containsKey(splitedData[1])) {
+                    if(trackedProducts.containsKey(splitedData[1])){
                         currentCategory = (Category) trackedProducts.get(splitedData[1]);
                     } else {
                         currentCategory = new Category(splitedData[1]);
@@ -66,12 +66,12 @@ public class Tracker {
         }
     }
 
-    public Category getCategoryHighSum() {
+    public Category getCategoryHighSum(){
         int maxSum = -1;
         Category result = null;
 
-        for (Map.Entry<String, Category> entry : trackedProducts.entrySet()) {
-            if (entry.getValue().getSum() > maxSum) {
+        for (Map.Entry<String, Category> entry : trackedProducts.entrySet()){
+            if (entry.getValue().getSum() > maxSum){
                 maxSum = entry.getValue().getSum();
                 result = entry.getValue();
             }
@@ -80,13 +80,13 @@ public class Tracker {
         return result;
     }
 
-    public void addNewProduct(JsonData product) {
-        if (hashProducts.containsKey(product.title)) {
+    public void addNewProduct(JsonData product){
+        if(hashProducts.containsKey(product.title)){
             Category prCat = (Category) trackedProducts.get(hashProducts.get(product.title));
             prCat.trackerSum(product);
         } else {
             Category currentCategory;
-            if (trackedProducts.containsKey("другое")) {
+            if(trackedProducts.containsKey("другое")){
                 currentCategory = (Category) trackedProducts.get("другое");
             } else {
                 currentCategory = new Category("другое");
@@ -101,7 +101,7 @@ public class Tracker {
                 + " на сумму: " + product.sum);
     }
 
-    public String getMaxSumCategory() {
+    public String getMaxSumCategory(){
         Category category = getCategoryHighSum();
 
         return "{" +
@@ -110,6 +110,17 @@ public class Tracker {
                 "    \"sum\": \"" + category.getSum() + "\"" +
                 "  }" +
                 "}";
-
+    }
+    public void saveBin() throws Exception {
+        try (FileWriter fileWriter = new FileWriter("data.bin")) {
+            Gson gson = new Gson();
+            gson.toJson(this, fileWriter);
+        }
+    }
+    public static Tracker loadFromBinFile() throws Exception {
+        try (FileReader fileReader = new FileReader("data.bin")) {
+            Gson gson = new Gson();
+            return gson.fromJson(fileReader, Tracker.class);
+        }
     }
 }
